@@ -1,0 +1,6 @@
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
+const BEANBALLER_API = process.env.VALORANT_API || "";
+const JOB_QUEUE_URL = process.env.JOB_QUEUE_URL || "";
+const VALORANT_AI_JOB_TABLE_NAME = process.env.VALORANT_AI_JOB_TABLE_NAME || "";
+
+export { OPENAI_API_KEY, BEANBALLER_API, JOB_QUEUE_URL, VALORANT_AI_JOB_TABLE_NAME };

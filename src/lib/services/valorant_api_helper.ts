@@ -1,5 +1,6 @@
-import { ValorantRankApi, ValorantRankGame, AIOutput } from "../model/interfaces.js";
+import { ValorantRankApi, ValorantRankGame } from "../model/valorant.js";
 import { BEANBALLER_API } from "../model/environment.js";
+import { AIOutput } from "../model/openai.js";
 
 const BEANBALLER_VALORANT_API_BASE = BEANBALLER_API;
 
