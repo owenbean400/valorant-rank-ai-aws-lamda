@@ -1,11 +1,30 @@
-import { APIGatewayProxyHandler } from "aws-lambda";
+import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { AiJobFetchResponse } from "../../lib/model/responses.js";
-import { VALORANT_AI_JOB_TABLE_NAME } from "../../lib/model/environment.js";
+import { AWS_REGION, VALORANT_AI_JOB_TABLE_NAME } from "../../lib/model/environment.js";
 
-const ddb = new DynamoDBClient({});
+const ddb = new DynamoDBClient({
+    region: AWS_REGION,
+});
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+export const handler: APIGatewayProxyHandlerV2 = async (event) => {
+    if (event.requestContext.http.method !== "GET" && event.requestContext.http.path.startsWith("/v1/question/job/")) {
+        return {
+            statusCode: 405,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: "Method not allowed." }),
+        };
+    }
+
+    if (VALORANT_AI_JOB_TABLE_NAME === "") {
+        console.error("VALORANT_AI_JOB_TABLE_NAME not configured");
+        return {
+            statusCode: 503,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: "Server not available." }),
+        };
+    }
+
     let bodyResponse: AiJobFetchResponse;
 
     try {
@@ -13,23 +32,24 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
         if (!jobId) {
             bodyResponse = {
-                message: "Missing jobId in path"
+                message: "Missing jobId in parameter path."
             }
 
             return {
                 statusCode: 400,
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(bodyResponse)
             };
         }
 
         const result = await ddb.send(new GetItemCommand({
             TableName: VALORANT_AI_JOB_TABLE_NAME,
-            Key: { jobId: { S: jobId } }
+            Key: { job_id: { S: jobId } }
         }));
 
         if (!result.Item) {
             bodyResponse = {
-                message: "Job not found"
+                message: "Job not found."
             }
 
             return {
@@ -39,27 +59,37 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         }
 
         bodyResponse = {
-            jobId: result.Item.jobId.S || "",
+            jobId: result.Item.job_id.S || "",
             status: result.Item.status.S || "",
             question: result.Item.question?.S || "",
-            result: result.Item.result?.S || "",
-            createAt: result.Item.result?.S || "",
-            lastUpdate: result.Item.lastUpdate?.S || ""
+            response: result.Item.response?.S || "",
+            createAt: result.Item.create_at?.S || "",
+            lastUpdate: result.Item.last_update?.S || ""
         };
 
         return {
             statusCode: 200,
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(bodyResponse)
         };
     } catch (err) {
+        let errorString = "";
+
+        if (err instanceof Error) {
+            errorString = err.message;
+        } else {
+            errorString = String(err);
+        }
+
         console.error("Error fetching job:", err);
 
         bodyResponse = {
-            message: "Internal server error"
+            message: "Server error."
         }
 
         return {
             statusCode: 500,
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(bodyResponse)
         };
     }

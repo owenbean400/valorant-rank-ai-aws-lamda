@@ -3,17 +3,32 @@ import { JobStatus } from "../../lib/model/status.js";
 import { v4 as uuidv4 } from "uuid";
 import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
-import { JOB_QUEUE_URL, VALORANT_AI_JOB_TABLE_NAME } from "../../lib/model/environment.js";
+import { AWS_REGION, JOB_QUEUE_URL, VALORANT_AI_JOB_TABLE_NAME } from "../../lib/model/environment.js";
 import { AiJobAcceptResponse } from "../../lib/model/responses.js";
 
-const ddb = new DynamoDBClient({});
-const sqs = new SQSClient({});
+const ddb = new DynamoDBClient({
+    region: AWS_REGION,
+});
+const sqs = new SQSClient({
+    region: AWS_REGION,
+});
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
     if (event.requestContext.http.method !== "POST" && event.requestContext.http.path !== "/v1/question") {
         return {
             statusCode: 405,
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ error: "Method Not Allowed" }),
+        };
+    }
+
+    if (VALORANT_AI_JOB_TABLE_NAME === "" || JOB_QUEUE_URL === "") {
+        if (VALORANT_AI_JOB_TABLE_NAME === "") console.error("VALORANT_AI_JOB_TABLE_NAME not configured");
+        if (JOB_QUEUE_URL === "") console.error("JOB_QUEUE_URL not configured");
+        return {
+            statusCode: 503,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: "Server not available." }),
         };
     }
 
@@ -40,16 +55,15 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         await ddb.send(new PutItemCommand({
             TableName: VALORANT_AI_JOB_TABLE_NAME,
             Item: {
-                jobId: { S: jobId },
+                job_id: { S: jobId },
                 status: { S: status },
                 question: { S: question },
                 response: { S: "" },
-                createdAt: { S: new Date().toISOString() },
-                lastUpdate: { S: new Date().toISOString() }
+                create_at: { S: new Date().toISOString() },
+                last_update: { S: new Date().toISOString() }
             }
         }));
 
-        // Push job request (with question) to SQS
         await sqs.send(new SendMessageCommand({
             QueueUrl: JOB_QUEUE_URL,
             MessageBody: JSON.stringify({ jobId, question })
@@ -77,5 +91,4 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             body: JSON.stringify(bodyResponse)
         };
     }
-
 }

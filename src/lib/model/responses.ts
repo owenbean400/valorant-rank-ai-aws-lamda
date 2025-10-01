@@ -7,7 +7,7 @@ interface AiJobFetchSuccess {
     jobId: string;
     status: string;
     question: string;
-    result: string;
+    response: string;
     createAt: string;
     lastUpdate: string;
 }

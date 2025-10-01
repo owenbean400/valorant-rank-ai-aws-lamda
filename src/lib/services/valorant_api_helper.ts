@@ -1,10 +1,8 @@
 import { ValorantRankApi, ValorantRankGame } from "../model/valorant.js";
-import { BEANBALLER_API } from "../model/environment.js";
+import { VALORANT_API_URL, VALORANT_RANK_PLAYER } from "../model/environment.js";
 import { AIOutput } from "../model/openai.js";
 
-const BEANBALLER_VALORANT_API_BASE = BEANBALLER_API;
-
-async function makeBeanBallerRequest<T>(url: string): Promise<T | null> {
+async function makeValorantRankRequest<T>(url: string): Promise<T | null> {
     const headers = {
         Accept: "application/json",
     };
@@ -16,7 +14,7 @@ async function makeBeanBallerRequest<T>(url: string): Promise<T | null> {
         }
         return (await response.json()) as T;
     } catch (error) {
-        console.error("Error making BeanBaller Valorant request:", error);
+        console.error(`Error making ${VALORANT_RANK_PLAYER} Valorant request:`, error);
         return null;
     }
 }
@@ -43,14 +41,14 @@ function formatValorantRank(game: ValorantRankGame): string {
     ].join("\n");
 }
 
-async function getBeanBallerValorantRankHistory(pageNumber: number): Promise<AIOutput> {
-    const rankHistoryUrl = `${BEANBALLER_VALORANT_API_BASE}/history?pageLength=${pageNumber}`;
-    const rankHistoryData = await makeBeanBallerRequest<ValorantRankApi>(rankHistoryUrl);
+async function getValorantRankHistory(pageNumber: number): Promise<AIOutput> {
+    const rankHistoryUrl = `${VALORANT_API_URL}/history?pageLength=${pageNumber}`;
+    const rankHistoryData = await makeValorantRankRequest<ValorantRankApi>(rankHistoryUrl);
 
     if (!rankHistoryData) {
         return {
             type: "text",
-            text: `Failed to retrieve BeanBaller's Valorant rank history data "${rankHistoryData}" with API call ${rankHistoryUrl}`
+            text: `Failed to retrieve ${VALORANT_RANK_PLAYER}'s Valorant rank history data "${rankHistoryData}" with API call ${rankHistoryUrl}`
         };
     }
 
@@ -63,7 +61,7 @@ async function getBeanBallerValorantRankHistory(pageNumber: number): Promise<AIO
     }
 
     const formattedRankHistory = games.map(formatValorantRank);
-    const outputText = `BeanBaller's Valorant rank history data below from last ${pageNumber.toString(10)} games with last evaluated PUUID key of ${rankHistoryData.last_eval_keys.last_eval_key_puuid_match} and last evaluated raw date int key of ${rankHistoryData.last_eval_keys.last_eval_key_raw_date_int.toString(10)}.:\n\n${formattedRankHistory.join("\n")}`;
+    const outputText = `${VALORANT_RANK_PLAYER}'s Valorant rank history data below from last ${pageNumber.toString(10)} games with last evaluated PUUID key of ${rankHistoryData.last_eval_keys.last_eval_key_puuid_match} and last evaluated raw date int key of ${rankHistoryData.last_eval_keys.last_eval_key_raw_date_int.toString(10)}.:\n\n${formattedRankHistory.join("\n")}`;
 
     return {
         type: "text",
@@ -71,4 +69,4 @@ async function getBeanBallerValorantRankHistory(pageNumber: number): Promise<AIO
     };
 }
 
-export { getBeanBallerValorantRankHistory };
+export { getValorantRankHistory };
