@@ -1,18 +1,21 @@
 {
-  "name": "beanballer-valorant-ai-aws-lamda",
-  "version": "1.0.0",
+  "name": "valorant-ai-aws-lamda",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild src/handler.ts --bundle --platform=node --target=node18 --outfile=dist/index.js"
+    "build": "esbuild src/handlers/v1-api-job/accept-job.ts --bundle --platform=node --target=node18 --outfile=dist/accept-job/index.js && esbuild src/handlers/v1-api-job/fetch-job.ts --bundle --platform=node --target=node18 --outfile=dist/fetch-job/index.js && esbuild src/handlers/v1-api-job/process-job.ts --bundle --platform=node --target=node18 --outfile=dist/process-job/index.js"
   },
   "type": "module",
   "keywords": [],
   "author": "Owen Bean",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.896.0",
+    "@aws-sdk/client-sqs": "^3.896.0",
     "aws-lambda": "^1.0.7",
-    "openai": "^5.20.2"
+    "openai": "^5.20.2",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.152",

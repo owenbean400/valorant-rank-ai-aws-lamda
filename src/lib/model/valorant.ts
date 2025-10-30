@@ -33,9 +33,4 @@ interface ValorantRankApi {
     last_eval_keys: ValorantRankHistoryLastFetchKeys
 }
 
-interface AIOutput {
-    type: string;
-    text: string;
-}
-
-export { ValorantRankApi, ValorantRankGame, AIOutput };
+export { ValorantRankApi, ValorantRankGame };
