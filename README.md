@@ -63,7 +63,7 @@ npm run build
 ```
 
 Each Lambda build will output a folder (e.g., `accept-job`, `fetch-job`, `process-job`) in the `dist/` directory.
-You’ll need to **zip each folder’s `index.js`** file for manual upload to AWS Lambda.
+You'll need to **zip each folder's `index.js`** file for manual upload to AWS Lambda.
 
 All functions use the **Node.js 22.x runtime**.
 
