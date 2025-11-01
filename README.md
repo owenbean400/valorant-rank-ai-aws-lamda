@@ -183,3 +183,10 @@ Replace `AWS_SQS_ARN` and `AWS_DYNAMODB_ARN` with your resource ARNs.
   ]
 }
 ```
+
+## 💡 Example Use Case
+
+This project is used to for **BeanBaller's question and answer AI for 10 most recent ranked matches** on a gaming website.
+
+* 🎮 [Valorant BeanBaller Website AI Question](https://www.beanballer.com/ai)
+* 📘 [Valorant BeanBaller AI Swagger Docs](https://www.beanballer.com/doc/ai)
