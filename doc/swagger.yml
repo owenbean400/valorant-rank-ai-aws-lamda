@@ -1,0 +1,148 @@
+openapi: 3.0.4
+info:
+  title: Valorant BeanBaller Player's AI API
+  description: This is Valorant BeanBaller player's AI chatbot for asking question and response about rank history.
+  contact:
+    email: owenbean400@gmail.com
+  version: 1.0.0
+servers:
+  - url: https://ai.beanballer.com
+tags:
+  - name: job
+    description: Valorant question and response job
+paths:
+  /v1/question:
+    post:
+      tags:
+        - job
+      summary: Post a question.
+      description: Post a question about BeanBaller's last 10 valorant rank game.
+      requestBody:
+        description: Question to process for AI response.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobQuestion"
+      responses:
+        '202':
+          description: Successfully accept the question for processing AI response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobAcceptance'
+        '400':
+          description: No question or empty question sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobUnacceptance'
+        '500':
+          description: Internal server error occuried.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Server has not been configured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/question/job/{id}:
+    get:
+      tags:
+        - job
+      summary: Fetch Valorant question job
+      description: Fetch Valorant question job to see what state it is at and get response when completed.
+      parameters:
+        - name: id
+          in: path
+          description: The job ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Question ID successfully fetch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobInformation'
+        '400':
+          description: No job ID provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Job ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error occuried.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Server has not been configured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    JobQuestion:
+      type: object
+      properties:
+        question:
+          type: string
+          example: What was the K/D of last Valorant match game?
+    JobAcceptance:
+      type: object
+      properties:
+        response:
+          type: string
+          example: AI Question job has been accepted
+        jobId:
+          type: string
+          example: 41b6cc59-ac3c-41f6-9dee-9d4f17710e55
+    JobUnacceptance:
+      type: object
+      properties:
+        response:
+          type: string
+          example: Please provide a question or prompt in 'question' of JSON body.
+        jobId:
+          type: "null"
+          example: null
+    JobInformation:
+      type: object
+      properties:
+        jobId:
+          type: string
+          example: 41b6cc59-ac3c-41f6-9dee-9d4f17710e55
+        status:
+          type: string
+          example: Complete
+        question:
+          type: string
+          example: What was the K/D of last Valorant match game?
+        response:
+          type: string
+          example: 1.36 K/D
+        createAt:
+          type: string
+          example: "2025-10-26T10:14:42.729Z"
+        lastUpdate:
+          type: string
+          example: "2025-10-26T10:15:18.470Z"
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Method Not Allowed
