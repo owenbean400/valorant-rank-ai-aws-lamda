@@ -13,7 +13,7 @@ interface AiJobFetchSuccess {
 }
 
 interface AiJobFetchError {
-    message: string;
+    error: string;
 }
 
 type AiJobFetchResponse = AiJobFetchSuccess | AiJobFetchError

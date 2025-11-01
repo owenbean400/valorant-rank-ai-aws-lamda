@@ -32,7 +32,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         if (!jobId) {
             bodyResponse = {
-                message: "Missing jobId in parameter path."
+                error: "Missing jobId in parameter path."
             }
 
             return {
@@ -49,7 +49,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
         if (!result.Item) {
             bodyResponse = {
-                message: "Job not found."
+                error: "Job not found."
             }
 
             return {
@@ -84,7 +84,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
         console.error("Error fetching job:", err);
 
         bodyResponse = {
-            message: "Server error."
+            error: "Server error."
         }
 
         return {
